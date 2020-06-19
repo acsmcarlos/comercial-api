@@ -1,8 +1,6 @@
 create table oportunidade (
-	id bigint not null,
+	id serial PRIMARY KEY,
 	nome_prospecto varchar(80) not null,
 	descricao varchar(200) not null,
-	valor decimal(10,2),
-	
-	primary key (id)
+	valor decimal(10,2)
 );
