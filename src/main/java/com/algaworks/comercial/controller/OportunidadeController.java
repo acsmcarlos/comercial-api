@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.algaworks.comercial.model.Oportunidade;
 import com.algaworks.comercial.repository.OportunidadeRepository;
@@ -45,6 +46,15 @@ public class OportunidadeController {
 	@PostMapping                 			// requestbody pega o json e transforma em um objeto java
 	@ResponseStatus(HttpStatus.CREATED)		// Retornar status 201 created.
 	public Oportunidade adicionar(@Valid @RequestBody Oportunidade oportunidade) { 		//inclusao de oportunidades na nossa API
-		return oportunidades.save(oportunidade);
+		Optional<Oportunidade> oportunidadeExistente = oportunidades
+				.findByDescricaoAndNomeProspecto(oportunidade.getDescricao(), 
+						oportunidade.getNomeProspecto());   //evitar que uma oportunidade se repita
+		
+		if(oportunidadeExistente.isPresent()) {		//se já existe uma oportunidade com os mesmos dados.
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST,	//lançar uma exceção - retornar um BAD REQUEST
+					"Já existe uma oportunidade para esse prospecto com a mesma descrição.");
+		}
+			
+		return oportunidades.save(oportunidade);	// se não existe uma oportunidade, então salve.
 	}
 }
